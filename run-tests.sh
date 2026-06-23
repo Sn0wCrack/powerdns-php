@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 bold=$(tput bold)
 red=$(tput setaf 1)
@@ -21,9 +21,8 @@ run() {
         -it \
         --rm \
         --name php"$PHP_VERSION" \
-        --link pdns"$SHORT_PDNS":pdns \
-        -e PDNS_HOST="http://pdns" \
-        --net powerdns-php_default \
+        --network powerdns-php_default \
+        -e PDNS_HOST="http://pdns$SHORT_PDNS" \
         -v "$PWD":/usr/src \
         -v "$PWD"/composer.phar:/usr/src/composer.phar \
         -w /usr/src/ \
@@ -49,6 +48,8 @@ rm -f composer.phar
 curl -L -sS https://getcomposer.org/download/latest-stable/composer.phar -o composer.phar
 chmod +x composer.phar
 
+docker compose up -d
+
 # If both arguments are given, only run that combo.
 if [ "$#" -eq 2 ]; then
     run "$SET_PHP_VERSION" "$SET_PDNS_VERSION"
@@ -61,7 +62,7 @@ else
         RESULTS="$RESULTS\n"
     done
     # Run tests for all supported PHP 8 / PowerDNS 4 combinations.
-    for phpversion in {0..3}; do
+    for phpversion in {0..5}; do
         for pdnsversion in {2..9}; do
             run "8.$phpversion" "4.$pdnsversion"
         done
@@ -75,3 +76,5 @@ echo "----------------------"
 printf "$RESULTS"
 
 exit $HAS_FAILED_TESTS
+
+docker compose down

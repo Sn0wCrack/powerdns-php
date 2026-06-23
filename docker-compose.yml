@@ -1,4 +1,3 @@
-version: "3.7"
 services:
   powerdns42:
     container_name: pdns42
@@ -47,3 +46,7 @@ services:
     image: registry.exonet.nl/exonet/powerdns-test:49
     ports:
       - "8049:8081"
+
+networks:
+  default:
+    name: powerdns-php_default
